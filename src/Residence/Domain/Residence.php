@@ -2,58 +2,62 @@
 
 namespace App\Residence\Domain;
 
-final class Residence
+use App\Residence\Domain\Enum\ResidenceType;
+use App\Residence\Domain\Value\Description;
+use App\Residence\Domain\Value\Floor;
+use App\Residence\Domain\Value\LivingArea;
+use App\Residence\Infrastructure\ResidenceRepository;
+use App\Shared\Domain\Value\Address;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: ResidenceRepository::class)]
+class Residence
 {
-    private ?int $id = null;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id;
 
-    private ?string $type = null;
+    #[ORM\Column(type: Types::STRING, enumType: ResidenceType::class)]
+    private ?ResidenceType $type;
 
-    private ?\DateTimeInterface $ownership_start_date = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $ownershipStartDate;
 
-    private ?string $living_area = null;
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?LivingArea $livingArea;
 
-    private ?string $description = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?Description $description;
 
-    private ?int $floor = null;
+    #[ORM\Column(nullable: true)]
+    private ?Floor $floor;
+
+    #[ORM\Embedded(class: Address::class)]
+    private Address $address;
 
     public function __construct(
         int $id,
-        string $type,
-        \DateTimeInterface $ownership_start_date,
-        string $living_area,
-        string $description,
-        int $floor
+        ResidenceType $type,
+        \DateTimeImmutable $ownershipStartDate,
+        LivingArea $livingArea,
+        Description $description,
+        Floor $floor,
+        Address $address
     )
     {
         $this->id = $id;
         $this->type = $type;
-        $this->ownership_start_date = $ownership_start_date;
-        $this->living_area = $living_area;
+        $this->ownershipStartDate = $ownershipStartDate;
+        $this->livingArea = $livingArea;
         $this->description = $description;
+        $this->address = $address;
         $this->floor = $floor;
     }
 
-    public function getId(): ?int { return $this->id; }
-
-    public function setId(int $id): void { $this->id = $id; }
-
-    public function getType(): ?string { return $this->type; }
-
-    public function setType(string $type): void { $this->type = $type; }
-
-    public function getOwnershipStartDate(): ?\DateTimeInterface { return $this->ownership_start_date; }
-
-    public function setOwnershipStartDate(?\DateTimeInterface $ownership_start_date): void { $this->ownership_start_date = $ownership_start_date; }
-    public function getLivingArea(): ?string { return $this->living_area; }
-
-    public function setLivingArea(?string $living_area): void { $this->living_area = $living_area; }
-
-    public function getDescription(): ?string { return $this->description; }
-
-    public function setDescription(?string $description): void {  $this->description = $description; }
-
-    public function getFloor(): ?int {  return $this->floor; }
-
-
-    public function setFloor(?int $floor): void { $this->floor = $floor; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 }
